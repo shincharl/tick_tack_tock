@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+        <title>틱택토</title>
+        <style>
+            table {
+                border-collapse: collapse;
+            }
+            td {
+                border: 1px solid black;
+                width : 40px;
+                height : 40px;
+                text-align : center;
+            }
+        </style>
+    </head>
+    <body>
+       <script>
+
+        const $table = document.createElement("table");
+        const $result = document.createElement('div');
+
+        let com_choice = 'x';
+        let user_choice = 'o';
+        let gameOver = false;
+
+        let turn = false;
+
+        const arr = [];
+
+        function checkWinner(){
+            for(let i = 0; i < 3; i++){
+                if(arr[i][0] && arr[i][0] === arr[i][1] && arr[i][1] === arr[i][2]){
+                    return arr[i][0];
+                } // 가로 확인
+
+                if(arr[0][i] && arr[0][i] === arr[1][i] && arr[1][i] === arr[2][i]){
+                    return arr[0][i];
+                }// 세로 확인
+            }
+
+            if(arr[0][0] && arr[0][0] === arr[1][1] && arr[1][1] === arr[2][2]){
+                return arr[0][0]; // 대각선 확인 1
+            }
+            if(arr[0][2] && arr[0][2] === arr[1][1] && arr[1][1] === arr[2][0]){
+                return arr[0][2]; // 대각선 확인 2
+            }
+
+            const isDraw = arr.flat().every(cell => cell);
+            if(isDraw) return 'draw';
+
+            return null;
+
+        }
+
+        function computerTurn(){
+
+            if(gameOver) return;
+
+            const empty = [];
+            for (let i = 0; i < 3; i++) {
+                for(let j=0; j < 3; j++){
+                    if(!arr[i][j]){
+                        empty.push([i, j]);
+                    }
+                }
+            }
+
+            if(empty.length === 0) return;
+
+            const [i, j] = empty[Math.floor(Math.random() * empty.length)];
+            arr[i][j] = com_choice;
+
+            const $cell = $table.rows[i].cells[j];
+            $cell.textContent = com_choice;
+
+            const winner = checkWinner();
+            if(winner){
+                gameOver = true;
+                $result.textContent = winner === "draw" ? "무승부입니다~~~" : `${winner.toUpperCase()} 승리!`;
+            }
+
+      }
+
+        document.body.appendChild($table); // body 태그에 table 태그 생성
+        document.body.appendChild($result);
+
+        for(let i = 0; i < 3; i++){  // 2차원 배열 생성
+            arr[i] = [];
+            const $tr = document.createElement('tr');
+            $table.appendChild($tr);
+
+            for(let j = 0; j < 3; j++){
+                const $td = document.createElement('td');
+                $tr.appendChild($td);
+                arr[i][j] = null;
+
+                $td.addEventListener('click', () => {
+                    if(gameOver) return;
+                    if($td.textContent !== '') return;
+
+                    $td.textContent = user_choice;
+                    arr[i][j] = user_choice;
+
+                    const winner = checkWinner();
+                    if(winner) {
+                        gameOver = true;
+                        $result.textContent = winner === "draw" ? "무승부입니다~~~" : `${winner.toUpperCase()} 승리!`;
+                        return;
+                    }
+
+                    setTimeout(() => {
+                        computerTurn();
+                    }, 500);
+                });
+            }
+        }
+
+       </script>
+    </body>
+</html>
